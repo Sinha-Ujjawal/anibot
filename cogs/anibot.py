@@ -33,6 +33,8 @@ config = load_config()
 
 TOP_N_ANIME_MODEL = "gemma-3-27b-it"
 SQL_MODEL = "gemma-3-27b-it"
+SUMMARY_MODEL = "gemma-3-27b-it"
+ENHANCED_OUTPUT_MODEL = "gemma-3-27b-it"
 
 
 def load_anime_data(
@@ -145,6 +147,24 @@ class AniBot(commands.Cog):
         )
         self.sql_chain = self.sql_prompt | self.sql_llm
 
+        # Setup Summary Model
+        self.summary_llm = ChatGoogleGenerativeAI(model=SUMMARY_MODEL, temperature=0)
+        self.summary_prompt = PromptTemplate.from_template(
+            (Path(__file__).parent / "anibot_summary_prompt.txt").read_text()
+        )
+        self.summary_chain = self.summary_prompt | self.summary_llm
+
+        # Setup Enhanced Output Model
+        self.enhanced_output_llm = ChatGoogleGenerativeAI(
+            model=ENHANCED_OUTPUT_MODEL, temperature=0
+        )
+        self.enhanced_output_prompt = PromptTemplate.from_template(
+            (Path(__file__).parent / "anibot_enhanced_output_prompt.txt").read_text()
+        )
+        self.enhanced_output_chain = (
+            self.enhanced_output_prompt | self.enhanced_output_llm
+        )
+
     @cached_property
     def count_by_genres(self) -> List[Tuple[str, int]]:
         anime_df = self.anime_df.copy()
@@ -197,15 +217,19 @@ class AniBot(commands.Cog):
 
         return _inner
 
-    @staticmethod
     async def followup(
+        self,
         interaction: nextcord.Interaction,
         content: str,
         *rest_args,
         **rest_kwargs,
     ):
         if len(content) > 2000:
-            content = "Response is greater than 2000 characters. Sorry, that is the max allowed characters ¯\_(ツ)_/¯"
+            # content = "Response is greater than 2000 characters. Sorry, that is the max allowed characters ¯\_(ツ)_/¯"
+            self.logger.info(
+                "Response message is greater than 2000 chars, attempting to summarise with 2000 max. chars limit"
+            )
+            content = self.summary_chain.invoke({"input": content}).content[:2000]
         await interaction.followup.send(content=content, *rest_args, **rest_kwargs)
 
     @nextcord.slash_command(
@@ -504,9 +528,15 @@ class AniBot(commands.Cog):
             anime_df = self.anime_df
             results_df = pysqldf(generated_sql, anime_df=anime_df)
             results_df_as_json = results_df.to_json(orient="records", indent=1)
+            results_df_summary = self.enhanced_output_chain.invoke(
+                {
+                    "data": results_df_as_json,
+                    "prompt": query,
+                }
+            ).content
             results = f"""Result:
 ```
-{results_df_as_json}
+{results_df_summary}
 ```
 """
         content = f"""Your Query:

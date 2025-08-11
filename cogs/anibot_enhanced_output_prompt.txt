@@ -1,0 +1,5 @@
+Context Data:
+{data}
+
+Answer the below prompt using the above Context Data
+{prompt}
