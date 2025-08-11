@@ -1,5 +1,7 @@
 nextcord
 langchain-core
 langchain-community
+langchain-google-genai
 duckdb
 pandas
+python-dotenv

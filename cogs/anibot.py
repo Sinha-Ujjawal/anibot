@@ -1,23 +1,23 @@
-import nextcord
-from nextcord.ext import commands
-
-from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_community.chat_models import ChatOllama
-from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts import PromptTemplate
-from langchain_core.runnables import Runnable
-from langchain.globals import set_debug, set_verbose
+import json
+from functools import cached_property, wraps
+from glob import glob
+from pathlib import Path
+from typing import List, Tuple
 
 import duckdb
+import nextcord
 import pandas as pd
-
-from glob import glob
-import json
-from pathlib import Path
-from typing import Tuple, List
-from functools import wraps, cached_property
-
+from dotenv import load_dotenv
 from helpers.utils import load_config
+from langchain.globals import set_debug, set_verbose
+from langchain.output_parsers import PydanticOutputParser
+from langchain.prompts import PromptTemplate
+from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.runnables import Runnable
+from langchain_google_genai import ChatGoogleGenerativeAI
+from nextcord.ext import commands
+
+load_dotenv()
 
 set_debug(True)
 set_verbose(True)
@@ -31,8 +31,8 @@ def pysqldf(query: str, **kwargs) -> pd.DataFrame:
 
 config = load_config()
 
-TOP_N_ANIME_MODEL = "gemma3:4b"
-SQL_MODEL = "gemma3:4b"
+TOP_N_ANIME_MODEL = "gemma-3-27b-it"
+SQL_MODEL = "gemma-3-27b-it"
 
 
 def load_anime_data(
@@ -126,7 +126,7 @@ class AniBot(commands.Cog):
         self.anime_df = load_anime_data()
 
         # Setup Top N Query Model
-        self.top_n_llm = ChatOllama(model=TOP_N_ANIME_MODEL, temperature=0)
+        self.top_n_llm = ChatGoogleGenerativeAI(model=TOP_N_ANIME_MODEL, temperature=0)
         self.top_n_animes_model_prompt = PromptTemplate.from_template(
             (
                 Path(__file__).parent
@@ -139,7 +139,7 @@ class AniBot(commands.Cog):
         )
 
         # Setup SQL Model
-        self.sql_llm = ChatOllama(model=SQL_MODEL, temperature=0)
+        self.sql_llm = ChatGoogleGenerativeAI(model=SQL_MODEL, temperature=0)
         self.sql_prompt = PromptTemplate.from_template(
             (Path(__file__).parent / "anibot_sql_prompt.txt").read_text()
         )
