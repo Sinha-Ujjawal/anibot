@@ -13,7 +13,7 @@ A Discord bot for anime discovery and recommendations powered by AI and a compre
 ## Prerequisites
 
 - Python 3.8+
-- [Ollama](https://ollama.ai/) with `gemma3:4b` model
+- [GEMINI\_API\_KEY](https://ai.google.dev/gemini-api/docs/api-key)
 - Discord Bot Token
 
 ## Quick Setup
@@ -29,11 +29,7 @@ A Discord bot for anime discovery and recommendations powered by AI and a compre
    pip install -r requirements.txt
    ```
 
-3. **Setup Ollama**:
-   ```bash
-   # Install Ollama, then:
-   ollama pull gemma3:4b
-   ```
+3. **Get [GEMINI_API_KEY](https://ai.google.dev/gemini-api/docs/api-key), and set `GOOGLE_API_KEY` env variable in your `.env` file**
 
 4. **Configure bot**:
    - Create your Discord application and get bot token
@@ -72,7 +68,7 @@ A Discord bot for anime discovery and recommendations powered by AI and a compre
 ## Architecture
 
 - **Data Source**: [anime-dataset](https://github.com/meesvandongen/anime-dataset) (included as submodule)
-- **AI Models**: LangChain + Ollama for natural language processing
+- **AI Models**: LangChain + Google Gemma Models for natural language processing
 - **Database**: DuckDB for fast in-memory SQL operations
 - **Discord**: Nextcord library for bot functionality
 
@@ -83,7 +79,6 @@ The bot uses a curated anime dataset with information on:
 - Genres, studios, and media types
 - Rankings, ratings, and episode counts
 - Air dates and synopses
-- Automatic NSFW content filtering
 
 ## Development
 
@@ -95,9 +90,7 @@ To extend the bot:
 
 ## Troubleshooting
 
-- **Ollama issues**: Ensure Ollama is running and `gemma3:4b` is installed
 - **Data loading**: Run `git submodule update --init` to fetch anime data
-- **Discord limits**: Responses are auto-truncated at 2000 characters
 
 ## Copyrights
 Licensed under [@MIT](./LICENSE)
