@@ -1,0 +1,17 @@
+{
+    "prefix": "/",
+    "google_api_key": "",
+    "token": "", // token
+    "permissions": "",
+    "application_id": "", // application_id
+    "guild_id": 0, // guild_id
+    "channel_id": 0, // channel_id
+    "sync_commands_globally": true,
+    "owners": [
+        632582343038599168
+    ],
+    "cogs": [
+        "default",
+        "anibot"
+    ]
+}

@@ -1,0 +1,5 @@
+nextcord
+langchain-core
+langchain-community
+duckdb
+pandas

@@ -1,0 +1,3 @@
+[submodule "data/anime-dataset"]
+	path = data/anime-dataset
+	url = https://github.com/meesvandongen/anime-dataset.git
